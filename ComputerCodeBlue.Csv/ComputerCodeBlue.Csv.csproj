@@ -15,7 +15,6 @@
     <PackageProjectUrl>https://github.com/computercodeblue/ComputerCodeBlue.Csv</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageIcon>icon.png</PackageIcon>
 
     <!-- Build/pack -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -30,6 +29,10 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.1.0" />
