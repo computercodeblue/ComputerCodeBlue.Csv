@@ -1,0 +1,10 @@
+C:\Users\burke\Nextcloud\Projects\ComputerCodeBlue.Csv\ComputerCodeBlue.Csv\bin\Debug\netstandard2.1\ComputerCodeBlue.Csv.deps.json
+C:\Users\burke\Nextcloud\Projects\ComputerCodeBlue.Csv\ComputerCodeBlue.Csv\bin\Debug\netstandard2.1\ComputerCodeBlue.Csv.dll
+C:\Users\burke\Nextcloud\Projects\ComputerCodeBlue.Csv\ComputerCodeBlue.Csv\bin\Debug\netstandard2.1\ComputerCodeBlue.Csv.pdb
+C:\Users\burke\Nextcloud\Projects\ComputerCodeBlue.Csv\ComputerCodeBlue.Csv\obj\Debug\netstandard2.1\ComputerCodeBlue.Csv.csproj.AssemblyReference.cache
+C:\Users\burke\Nextcloud\Projects\ComputerCodeBlue.Csv\ComputerCodeBlue.Csv\obj\Debug\netstandard2.1\ComputerCodeBlue.Csv.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\burke\Nextcloud\Projects\ComputerCodeBlue.Csv\ComputerCodeBlue.Csv\obj\Debug\netstandard2.1\ComputerCodeBlue.Csv.AssemblyInfoInputs.cache
+C:\Users\burke\Nextcloud\Projects\ComputerCodeBlue.Csv\ComputerCodeBlue.Csv\obj\Debug\netstandard2.1\ComputerCodeBlue.Csv.AssemblyInfo.cs
+C:\Users\burke\Nextcloud\Projects\ComputerCodeBlue.Csv\ComputerCodeBlue.Csv\obj\Debug\netstandard2.1\ComputerCodeBlue.Csv.csproj.CoreCompileInputs.cache
+C:\Users\burke\Nextcloud\Projects\ComputerCodeBlue.Csv\ComputerCodeBlue.Csv\obj\Debug\netstandard2.1\ComputerCodeBlue.Csv.dll
+C:\Users\burke\Nextcloud\Projects\ComputerCodeBlue.Csv\ComputerCodeBlue.Csv\obj\Debug\netstandard2.1\ComputerCodeBlue.Csv.pdb
