@@ -5,7 +5,7 @@
 
     <!-- NuGet metadata -->
     <PackageId>ComputerCodeBlue.Csv</PackageId>
-    <Version>1.0.2</Version> <!-- use SemVer -->
+    <Version>1.1.0</Version> <!-- use SemVer -->
     <Authors>Computer Code Blue LLC</Authors>
     <Company>Computer Code Blue LLC</Company>
     <Description>Convenient extension methods and helpers around CsvHelper.</Description>

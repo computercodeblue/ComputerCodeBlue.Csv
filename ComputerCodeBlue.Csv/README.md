@@ -32,10 +32,10 @@ public class Person
 using ComputerCodeBlue.Csv;
 
 // Synchronous
-var people = CsvExtensions.ReadCsv<Person>("people.csv");
+var people = CsvFile.Read<Person>("people.csv");
 
 // Asynchronous streaming
-await foreach (var person in CsvExtensions.ReadCsvAsync<Person>("people.csv"))
+await foreach (var person in CsvFile.ReadAsync<Person>("people.csv"))
 {
     Console.WriteLine($"{person.FirstName} {person.LastName} ({person.Age})");
 }
@@ -52,20 +52,20 @@ var people = new List<Person>
 };
 
 // Synchronous
-CsvExtensions.WriteCsv("people.csv", people);
+CsvFile.Write("people.csv", people);
 
 // Asynchronous
-await CsvExtensions.WriteCsvAsync("people.csv", people);
+await CsvFile.WriteAsync("people.csv", people);
 ```
 
 ---
 
 ## API Surface
 
-- `IEnumerable<T> ReadCsv<T>(string filePath, CsvConfiguration? config = null)`
-- `IAsyncEnumerable<T> ReadCsvAsync<T>(string filePath, CsvConfiguration? config = null, CancellationToken ct = default)`
-- `void WriteCsv<T>(string filePath, IEnumerable<T> items, CsvConfiguration? config = null)`
-- `Task WriteCsvAsync<T>(string filePath, IEnumerable<T> items, CsvConfiguration? config = null, CancellationToken ct = default)`
+- `IEnumerable<T> Read<T>(string filePath, CsvConfiguration? config = null)`
+- `IAsyncEnumerable<T> ReadAsync<T>(string filePath, CsvConfiguration? config = null, CancellationToken ct = default)`
+- `void Write<T>(string filePath, IEnumerable<T> items, CsvConfiguration? config = null)`
+- `Task WriteAsync<T>(string filePath, IEnumerable<T> items, CsvConfiguration? config = null, CancellationToken ct = default)`
 
 ---
 
