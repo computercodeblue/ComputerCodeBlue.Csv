@@ -9,12 +9,12 @@ This package is intended as a **small utility library** you can reuse across pro
 ## Features
 
 - **Read CSV (sync/async)**
-  - `ReadCsv<T>(filePath)` → `IEnumerable<T>`
-  - `ReadCsvAsync<T>(filePath)` → `IAsyncEnumerable<T>`
+  - `CsvFile.Read<T>(filePath)` → `IEnumerable<T>`
+  - `CsvFile.ReadAsync<T>(filePath)` → `IAsyncEnumerable<T>`
 
 - **Write CSV (sync/async)**
-  - `WriteCsv<T>(filePath, items)`
-  - `WriteCsvAsync<T>(filePath, items)`
+  - `CsvFile.Write<T>(filePath, items)`
+  - `CsvFile.WriteAsync<T>(filePath, items)`
 
 - Built on [CsvHelper](https://github.com/JoshClose/CsvHelper) with sensible defaults (`CultureInfo.InvariantCulture`).
 - Optional `CsvConfiguration` parameter for full control.
@@ -47,7 +47,7 @@ public class Person
 ```csharp
 using ComputerCodeBlue.Csv;
 
-var people = CsvExtensions.ReadCsv<Person>("people.csv");
+var people = CsvFile.Read<Person>("people.csv");
 
 foreach (var person in people)
 {
@@ -59,7 +59,7 @@ foreach (var person in people)
 ```csharp
 using ComputerCodeBlue.Csv;
 
-await foreach (var person in CsvExtensions.ReadCsvAsync<Person>("people.csv"))
+await foreach (var person in CsvFile.ReadAsync<Person>("people.csv"))
 {
     Console.WriteLine($"{person.FirstName} {person.LastName} ({person.Age})");
 }
@@ -75,14 +75,14 @@ var people = new List<Person>
     new() { FirstName = "Bob", LastName = "Johnson", Age = 42 }
 };
 
-CsvExtensions.WriteCsv("people.csv", people);
+CsvFile.Write("people.csv", people);
 ```
 
 ### Writing (asynchronous)
 ```csharp
 using ComputerCodeBlue.Csv;
 
-await CsvExtensions.WriteCsvAsync("people.csv", people);
+await CsvFile.WriteAsync("people.csv", people);
 ```
 
 ---
@@ -90,19 +90,19 @@ await CsvExtensions.WriteCsvAsync("people.csv", people);
 ## API Reference
 
 ```csharp
-IEnumerable<T> ReadCsv<T>(string filePath, CsvConfiguration? config = null);
+IEnumerable<T> Read<T>(string filePath, CsvConfiguration? config = null);
 
-IAsyncEnumerable<T> ReadCsvAsync<T>(
+IAsyncEnumerable<T> ReadAsync<T>(
     string filePath,
     CsvConfiguration? config = null,
     CancellationToken ct = default);
 
-void WriteCsv<T>(
+void Write<T>(
     string filePath,
     IEnumerable<T> items,
     CsvConfiguration? config = null);
 
-Task WriteCsvAsync<T>(
+Task WriteAsync<T>(
     string filePath,
     IEnumerable<T> items,
     CsvConfiguration? config = null,
