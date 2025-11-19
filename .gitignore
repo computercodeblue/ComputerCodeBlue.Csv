@@ -3,6 +3,8 @@
 
 .vs/
 .vs/*
+nupkgs/
+nupkgs/*
 
 # User-specific files
 *.suo

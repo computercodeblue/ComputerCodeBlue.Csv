@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net6.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net10.0;net8.0;net6.0;netstandard2.1</TargetFrameworks>
 
     <!-- NuGet metadata -->
     <PackageId>ComputerCodeBlue.Csv</PackageId>
     <Version>1.1.0</Version> <!-- use SemVer -->
     <Authors>Computer Code Blue LLC</Authors>
     <Company>Computer Code Blue LLC</Company>
-    <Description>Convenient extension methods and helpers around CsvHelper.</Description>
+    <Description>Small static CsvFile helper that wraps CsvHelper with a File-like API.</Description>
     <PackageTags>csv;csvhelper;io;extensions</PackageTags>
     <RepositoryUrl>https://github.com/computercodeblue/ComputerCodeBlue.Csv</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
