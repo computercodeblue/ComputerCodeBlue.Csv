@@ -1,0 +1,44 @@
+name: Publish to NuGet.org
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build
+
+      - name: Pack
+        run: >
+          dotnet pack src/ComputerCodeBlue.Csv/ComputerCodeBlue.Csv.csproj
+          --configuration Release --no-build --output artifacts/nupkgs
+
+      - name: Push packages to NuGet.org
+        run: >
+          dotnet nuget push "artifacts/nupkgs/*.nupkg"
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      - name: Push symbol packages to NuGet.org
+        run: >
+          dotnet nuget push "artifacts/nupkgs/*.snupkg"
+          --api-key ${{ secrets.NUGET_API_KEY }}
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
