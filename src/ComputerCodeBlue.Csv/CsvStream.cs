@@ -62,6 +62,66 @@ namespace ComputerCodeBlue.Csv
             => ReadAsync<T>(stream, options, ct);
 
         /// <summary>
+        /// Reads <paramref name="stream"/> into a dictionary per row, keyed by the file's actual
+        /// header names, with every value as the raw field string (no type conversion). Intended
+        /// for loosely-typed uses like template/merge-field substitution, where there's no fixed
+        /// record type to read into.
+        /// </summary>
+        public static IEnumerable<IDictionary<string, string>> ReadDynamic(Stream stream, CsvOptions? options = null)
+        {
+            var config = CsvOptionsAdapter.ToCsvConfiguration(options ?? CsvOptions.Default);
+            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, DefaultBufferSize, leaveOpen: true);
+            using var csv = new CsvReader(reader, config);
+
+            return CsvDynamicReader.ReadRecords(csv);
+        }
+
+        /// <inheritdoc cref="ReadDynamic(Stream, CsvOptions?)"/>
+        public static async IAsyncEnumerable<IDictionary<string, string>> ReadDynamicAsync(Stream stream, CsvOptions? options = null, [EnumeratorCancellation] CancellationToken ct = default)
+        {
+            var config = CsvOptionsAdapter.ToCsvConfiguration(options ?? CsvOptions.Default);
+            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, DefaultBufferSize, leaveOpen: true);
+            using var csv = new CsvReader(reader, config);
+
+            await foreach (var row in CsvDynamicReader.ReadRecordsAsync(csv, ct).ConfigureAwait(false))
+            {
+                yield return row;
+            }
+        }
+
+        /// <summary>
+        /// Writes <paramref name="items"/> to <paramref name="stream"/> using an explicit column
+        /// list instead of a fixed record type. Each <paramref name="headers"/> entry becomes a
+        /// column, and for every item the value is looked up by that column name - not by
+        /// enumeration order - so items with different shapes (or the same keys added in a
+        /// different order) still land in the right columns. A missing key writes a blank cell,
+        /// or throws a <see cref="WriterException"/> if <see cref="CsvOptions.MissingField"/> is
+        /// <see cref="CsvMissingFieldBehavior.Throw"/>. The header row is always written, even for
+        /// an empty <paramref name="items"/>. The stream is left open, as with the other methods
+        /// on this class.
+        /// </summary>
+        public static void WriteDynamic(Stream stream, IEnumerable<string> headers, IEnumerable<IDictionary<string, object?>> items, CsvOptions? options = null)
+        {
+            var effectiveOptions = options ?? CsvOptions.Default;
+            var config = CsvOptionsAdapter.ToCsvConfiguration(effectiveOptions);
+            using var writer = new StreamWriter(stream, Utf8NoBom, DefaultBufferSize, leaveOpen: true);
+            using var csv = new CsvWriter(writer, config);
+
+            CsvDynamicWriter.WriteRecords(csv, headers, items, effectiveOptions);
+        }
+
+        /// <inheritdoc cref="WriteDynamic(Stream, IEnumerable{string}, IEnumerable{IDictionary{string, object?}}, CsvOptions?)"/>
+        public static async Task WriteDynamicAsync(Stream stream, IEnumerable<string> headers, IEnumerable<IDictionary<string, object?>> items, CsvOptions? options = null, CancellationToken ct = default)
+        {
+            var effectiveOptions = options ?? CsvOptions.Default;
+            var config = CsvOptionsAdapter.ToCsvConfiguration(effectiveOptions);
+            using var writer = new StreamWriter(stream, Utf8NoBom, DefaultBufferSize, leaveOpen: true);
+            using var csv = new CsvWriter(writer, config);
+
+            await CsvDynamicWriter.WriteRecordsAsync(csv, headers, items, effectiveOptions, ct).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Writes records to <paramref name="stream"/>, flushing before returning. The stream is
         /// left open; the caller remains responsible for disposing it.
         /// </summary>

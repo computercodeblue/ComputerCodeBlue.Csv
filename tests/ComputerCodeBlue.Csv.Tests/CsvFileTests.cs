@@ -61,4 +61,43 @@ public class CsvFileTests
         Assert.Throws<HeaderValidationException>(() =>
             CsvFile.ReadAnonymous(file.Path, new { Name = "", Age = 0, City = "" }).ToList());
     }
+
+    [Fact]
+    public void WriteDynamic_Then_ReadDynamic_RoundTrips_ByHeaderName()
+    {
+        using var file = new TempCsvFile();
+        var items = new List<IDictionary<string, object?>>
+        {
+            new Dictionary<string, object?> { ["Name"] = "Alice", ["Age"] = 30 },
+        };
+
+        CsvFile.WriteDynamic(file.Path, ["Name", "Age"], items);
+        var result = CsvFile.ReadDynamic(file.Path).ToList();
+
+        Assert.Single(result);
+        Assert.Equal("Alice", result[0]["Name"]);
+        Assert.Equal("30", result[0]["Age"]);
+    }
+
+    [Fact]
+    public async Task WriteDynamicAsync_Then_ReadDynamicAsync_RoundTrips()
+    {
+        using var file = new TempCsvFile();
+        var items = new List<IDictionary<string, object?>>
+        {
+            new Dictionary<string, object?> { ["Name"] = "Alice", ["Age"] = 30 },
+        };
+
+        await CsvFile.WriteDynamicAsync(file.Path, ["Name", "Age"], items);
+
+        var result = new List<IDictionary<string, string>>();
+        await foreach (var row in CsvFile.ReadDynamicAsync(file.Path))
+        {
+            result.Add(row);
+        }
+
+        Assert.Single(result);
+        Assert.Equal("Alice", result[0]["Name"]);
+        Assert.Equal("30", result[0]["Age"]);
+    }
 }
