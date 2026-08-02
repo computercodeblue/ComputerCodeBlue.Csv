@@ -6,11 +6,16 @@ This package is intended as a **small utility library** you can reuse across pro
 
 ---
 
+## Why This Exists
+
+Reading and writing CSV files is surprisingly hard. There are many edge cases that will break any quick-and-dirty parser you write yourself. Thankfully, there's CsvHelper, which I've used for many years. To use CsvHelper, I was creating the same boilerplate methods in order to get an API like System.IO.File where I can just use `CsvFile.Read()` or `CsvFile.Write()`. This project aims to put all of that into a reusable package.
+
+---
+
 ## Repository layout
 
 - `src/ComputerCodeBlue.Csv/` — the library
 - `tests/ComputerCodeBlue.Csv.Tests/` — unit tests (xUnit)
-- `artifacts/nupkgs/` — packed NuGet packages
 
 ---
 
@@ -28,6 +33,10 @@ This package is intended as a **small utility library** you can reuse across pro
 
 - **Anonymous types**
   - `CsvFile.ReadAnonymous(filePath, template)` / `CsvStream.ReadAnonymous(stream, template)` (plus async variants) — read into an anonymous type by passing a throwaway instance of the desired shape.
+
+- **Dynamic/loosely-typed rows** (no fixed record type at all — e.g. template/merge-field substitution)
+  - `CsvFile.ReadDynamic(filePath)` / `CsvStream.ReadDynamic(stream)` (plus async variants) — each row as `Dictionary<string, string>`, keyed by header name, raw field values.
+  - `CsvFile.WriteDynamic(filePath, headers, items)` / `CsvStream.WriteDynamic(stream, headers, items)` (plus async variants) — `items` are `IDictionary<string, object?>`. Exists because CsvHelper's own dynamic write support writes no header at all for an empty sequence, and matches fields by enumeration order rather than by name (two same-shaped records added in a different key order silently land in the wrong columns). This always writes the given headers and looks each value up by name.
 
 - `CsvStream` never closes the `Stream` you pass it — you own its lifetime.
 - Built on [CsvHelper](https://github.com/JoshClose/CsvHelper) with sensible defaults (`CultureInfo.InvariantCulture`).
@@ -126,6 +135,47 @@ using ComputerCodeBlue.Csv;
 var rows = CsvFile.ReadAnonymous("people.csv", new { FirstName = "", LastName = "", Age = 0 });
 ```
 
+### Dynamic/loosely-typed rows
+
+For cases with no fixed record type at all - e.g. reading an arbitrary CSV
+for template/merge-field substitution, where the columns aren't known until
+runtime. `ReadDynamic` returns each row as `Dictionary<string, string>`
+keyed by the file's actual header names, with raw (unconverted) field
+values - a zip code like `"07030"` stays a string, not `7030`:
+
+```csharp
+using ComputerCodeBlue.Csv;
+
+foreach (var row in CsvFile.ReadDynamic("people.csv"))
+{
+    Console.WriteLine($"{row["FirstName"]} {row["LastName"]}");
+}
+```
+
+`WriteDynamic` takes an explicit column list plus items shaped as
+`IDictionary<string, object?>`. It exists because CsvHelper's own dynamic
+write support has two sharp edges: an empty `IEnumerable<object>`/
+`IEnumerable<dynamic>` writes no header at all, and even where it does
+write, fields are matched by enumeration order rather than by name - two
+records with the same keys added in a different order silently land in the
+wrong columns. `WriteDynamic` always writes the given headers and looks
+each item's value up by column name, so neither failure mode can happen:
+
+```csharp
+using ComputerCodeBlue.Csv;
+
+var headers = new[] { "FirstName", "LastName", "Age" };
+var rows = new List<IDictionary<string, object?>>
+{
+    new Dictionary<string, object?> { ["FirstName"] = "Alice", ["LastName"] = "Smith", ["Age"] = 30 },
+};
+
+CsvFile.WriteDynamic("people.csv", headers, rows);
+```
+
+A row missing a declared column writes a blank cell, or throws if
+`CsvOptions.MissingField` is `CsvMissingFieldBehavior.Throw`.
+
 ---
 
 ## API Reference
@@ -148,6 +198,13 @@ IAsyncEnumerable<T> ReadAnonymousAsync<T>(
     CsvOptions? options = null,
     CancellationToken ct = default);
 
+IEnumerable<IDictionary<string, string>> ReadDynamic(string filePath, CsvOptions? options = null);
+
+IAsyncEnumerable<IDictionary<string, string>> ReadDynamicAsync(
+    string filePath,
+    CsvOptions? options = null,
+    CancellationToken ct = default);
+
 void Write<T>(
     string filePath,
     IEnumerable<T> items,
@@ -156,6 +213,19 @@ void Write<T>(
 Task WriteAsync<T>(
     string filePath,
     IEnumerable<T> items,
+    CsvOptions? options = null,
+    CancellationToken ct = default);
+
+void WriteDynamic(
+    string filePath,
+    IEnumerable<string> headers,
+    IEnumerable<IDictionary<string, object?>> items,
+    CsvOptions? options = null);
+
+Task WriteDynamicAsync(
+    string filePath,
+    IEnumerable<string> headers,
+    IEnumerable<IDictionary<string, object?>> items,
     CsvOptions? options = null,
     CancellationToken ct = default);
 ```
