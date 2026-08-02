@@ -2,16 +2,6 @@
 
 All notable changes to this project are documented in this file.
 
-## [Unreleased]
-
-### Added
-- `DataTable.LoadCsv`/`LoadCsvAsync` extension methods load a CSV file or stream directly into a
-  `System.Data.DataTable` via CsvHelper's `CsvDataReader` and `DataTable.Load(IDataReader)`.
-  Loading into an empty `DataTable` creates all-`string` columns from the CSV header; loading into
-  a `DataTable` that already has typed columns converts values to those existing column types.
-  `LoadCsvAsync` offloads the (synchronous) load via `Task.Run`, since neither `CsvDataReader` nor
-  `DataTable.Load` has a true async path.
-
 ## [1.3.0] - 2026-08-02
 
 ### Added
@@ -27,6 +17,12 @@ All notable changes to this project are documented in this file.
   up by column name rather than by enumeration order, so same-shaped or differently-shaped items
   can't silently land in the wrong column. A missing key writes a blank cell, or throws if
   `CsvOptions.MissingField` is `CsvMissingFieldBehavior.Throw`.
+- `DataTable.LoadCsv`/`LoadCsvAsync` extension methods load a CSV file or stream directly into a
+  `System.Data.DataTable` via CsvHelper's `CsvDataReader` and `DataTable.Load(IDataReader)`.
+  Loading into an empty `DataTable` creates all-`string` columns from the CSV header; loading into
+  a `DataTable` that already has typed columns converts values to those existing column types.
+  `LoadCsvAsync` offloads the (synchronous) load via `Task.Run`, since neither `CsvDataReader` nor
+  `DataTable.Load` has a true async path.  
 
 ### Fixed
 - `CsvStream`: `Read`/`ReadAsync`/`Write`/`WriteAsync` no longer close the caller-supplied
