@@ -38,6 +38,12 @@ Reading and writing CSV files is surprisingly hard. There are many edge cases th
   - `CsvFile.ReadDynamic(filePath)` / `CsvStream.ReadDynamic(stream)` (plus async variants) — each row as `Dictionary<string, string>`, keyed by header name, raw field values.
   - `CsvFile.WriteDynamic(filePath, headers, items)` / `CsvStream.WriteDynamic(stream, headers, items)` (plus async variants) — `items` are `IDictionary<string, object?>`. Exists because CsvHelper's own dynamic write support writes no header at all for an empty sequence, and matches fields by enumeration order rather than by name (two same-shaped records added in a different key order silently land in the wrong columns). This always writes the given headers and looks each value up by name.
 
+- **`DataTable` support**
+  - `dataTable.LoadCsv(filePath)` / `dataTable.LoadCsv(stream)` (plus async variants) — load a CSV
+    straight into a `System.Data.DataTable` via CsvHelper's `CsvDataReader` and
+    `DataTable.Load(IDataReader)`. An empty `DataTable` gets all-`string` columns from the CSV
+    header; a `DataTable` that already has typed columns gets its values converted to those types.
+
 - `CsvStream` never closes the `Stream` you pass it — you own its lifetime.
 - Built on [CsvHelper](https://github.com/JoshClose/CsvHelper) with sensible defaults (`CultureInfo.InvariantCulture`).
 - Optional `CsvOptions` parameter for full control.
@@ -176,6 +182,35 @@ CsvFile.WriteDynamic("people.csv", headers, rows);
 A row missing a declared column writes a blank cell, or throws if
 `CsvOptions.MissingField` is `CsvMissingFieldBehavior.Throw`.
 
+### DataTable support
+
+`LoadCsv`/`LoadCsvAsync` are extension methods on `System.Data.DataTable`, mirroring the BCL's own
+`DataTable.Load(IDataReader)`. Loading into an empty table creates columns (typed `string`) from
+the CSV header:
+
+```csharp
+using System.Data;
+using ComputerCodeBlue.Csv;
+
+var table = new DataTable().LoadCsv("people.csv");
+```
+
+Loading into a `DataTable` that already has typed columns (e.g. from a typed `DataSet` designer, or
+built by hand) converts each value to the existing column's type instead:
+
+```csharp
+var table = new DataTable();
+table.Columns.Add("FirstName", typeof(string));
+table.Columns.Add("Age", typeof(int));
+
+table.LoadCsv("people.csv"); // Age column ends up as int, not string
+```
+
+`LoadCsvAsync` offloads the load via `Task.Run`, since neither CsvHelper's `CsvDataReader` nor
+`DataTable.Load` has a true async path — it keeps a calling UI thread responsive but offers no
+server-side throughput benefit, and a `CancellationToken` only prevents the load from starting, not
+cancelling one already in progress.
+
 ---
 
 ## API Reference
@@ -234,6 +269,29 @@ Task WriteDynamicAsync(
 
 Same members as `CsvFile`, with `Stream stream` in place of `string filePath`.
 None of them close or dispose the stream you pass in.
+
+### `DataTableExtensions`
+
+```csharp
+DataTable LoadCsv(this DataTable table, string filePath, CsvOptions? options = null);
+
+DataTable LoadCsv(this DataTable table, Stream stream, CsvOptions? options = null);
+
+Task<DataTable> LoadCsvAsync(
+    this DataTable table,
+    string filePath,
+    CsvOptions? options = null,
+    CancellationToken ct = default);
+
+Task<DataTable> LoadCsvAsync(
+    this DataTable table,
+    Stream stream,
+    CsvOptions? options = null,
+    CancellationToken ct = default);
+```
+
+All four return the same `table` instance passed in. The `Stream` overloads never close or dispose
+the stream you pass in.
 
 ---
 
