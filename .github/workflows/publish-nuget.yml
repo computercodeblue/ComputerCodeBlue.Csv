@@ -29,16 +29,12 @@ jobs:
           dotnet pack src/ComputerCodeBlue.Csv/ComputerCodeBlue.Csv.csproj
           --configuration Release --no-build --output artifacts/nupkgs
 
+      # NuGet.org auto-pushes the matching .snupkg alongside its .nupkg, so a separate symbol push
+      # step isn't needed here - confirmed against the 1.3.0 publish, which uploaded both from
+      # this one push.
       - name: Push packages to NuGet.org
         run: >
           dotnet nuget push "artifacts/nupkgs/*.nupkg"
-          --api-key ${{ secrets.NUGET_API_KEY }}
-          --source https://api.nuget.org/v3/index.json
-          --skip-duplicate
-
-      - name: Push symbol packages to NuGet.org
-        run: >
-          dotnet nuget push "artifacts/nupkgs/*.snupkg"
           --api-key ${{ secrets.NUGET_API_KEY }}
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
